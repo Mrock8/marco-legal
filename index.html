@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva del Marco Legal para Ingenieros en Venezuela</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutrals & Slate -->
+    <!-- Application Structure Plan: Se ha rediseñado la aplicación para simular la estructura de un Mapa Mental. El título central actúa como nodo principal, y los tres temas (Ejercicio Profesional, Base Constitucional, Deber de Colegiatura) se presentan como nodos o ramas clicables dispuestos horizontalmente. Esta estructura visualmente jerárquica facilita la comprensión de que los tres temas son subconjuntos esenciales del Marco Legal. Al hacer clic en un nodo/rama, se revela su contenido detallado, manteniendo un flujo de exploración segmentado y lógico. -->
+    <!-- Visualization & Content Choices: 1. Pirámide de Kelsen: Report Info -> Jerarquía de Leyes. Goal -> Organizar/Informar. Viz -> Diagrama interactivo con HTML/CSS (divs apilados). Interaction -> Hover sobre un nivel resalta el nivel y muestra su descripción detallada. Justification -> Hace que la estructura legal sea fácil de entender y visualmente atractiva. Library -> Vanilla JS + Tailwind. 2. Deberes y Principios: Report Info -> Listas de responsabilidades y artículos. Goal -> Informar. Viz -> Cuadrícula de tarjetas con iconos. Interaction -> Hover para un efecto sutil de realce. Justification -> Facilita la lectura y segmenta la información clave en bloques digeribles. Library -> HTML/Tailwind. 3. Flujo de Colegiatura: Report Info -> Conexión Art. 105 a LEIAPA. Goal -> Mostrar Proceso. Viz -> Diagrama de flujo horizontal. Interaction -> Estático pero visualmente secuencial. Justification -> Aclara la relación causa-efecto entre la Constitución y la práctica profesional. Library -> HTML/Tailwind. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        .mind-map-branch {
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border-radius: 1rem; /* rounded-xl */
+            padding: 1.5rem; /* p-6 */
+            min-height: 120px;
+        }
+        /* Color and style for active branch */
+        .mind-map-branch.active {
+            background-color: #0891b2; /* cyan-600 */
+            color: white;
+            transform: translateY(-5px) scale(1.02);
+        }
+        .mind-map-branch:not(.active):hover {
+            background-color: #f5f5f4; /* stone-100 */
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .kelsen-pyramid-level, .kelsen-desc-item {
+            transition: all 0.3s ease;
+        }
+        .kelsen-pyramid-level {
+            clip-path: polygon(15% 0, 85% 0, 100% 100%, 0% 100%);
+            cursor: default;
+        }
+        .kelsen-pyramid-container:hover .kelsen-desc-item {
+            opacity: 0.5;
+        }
+        .kelsen-pyramid-container:hover .kelsen-pyramid-level {
+             opacity: 0.7;
+        }
+        .kelsen-pyramid-container .kelsen-pyramid-level:hover {
+            transform: scale(1.05);
+            opacity: 1;
+            z-index: 10;
+        }
+        .kelsen-pyramid-container .kelsen-pyramid-level:hover + .kelsen-desc-item,
+        .kelsen-pyramid-container .kelsen-pyramid-level:hover ~ .kelsen-desc-item {
+             opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800">
+
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+        <!-- Header (Updated to reflect SPA structure) -->
+        <header class="text-center mb-8">
+            <h1 class="text-lg md:text-xl font-medium text-slate-600">Guía Interactiva</h1>
+        </header>
+
+        <!-- Mind Map Structure (Reemplaza la navegación) -->
+        <div class="flex flex-col items-center justify-center mb-10">
+            <!-- Center Node: Title -->
+            <div class="bg-cyan-800 text-white p-5 md:p-6 rounded-3xl shadow-2xl relative">
+                <h2 class="text-2xl md:text-3xl font-black tracking-wider uppercase">Marco Legal del Ejercicio de la Ingeniería</h2>
+            </div>
+            
+            <p class="mt-8 mb-6 text-slate-600 font-medium text-center">Seleccione una rama del mapa mental para explorar su contenido detallado.</p>
+
+            <!-- Branches: The 3 Topics (Reemplaza los botones de navegación) -->
+            <div class="grid md:grid-cols-3 gap-6 w-full max-w-5xl">
+                
+                <!-- Branch 1: Ejercicio Profesional -->
+                <button data-target="profesional" class="mind-map-branch active bg-white text-slate-700 hover:text-white hover:bg-cyan-500">
+                    <span class="text-2xl block mb-2">1. 🛠️</span>
+                    <h3 class="font-bold text-lg md:text-xl">Ejercicio Profesional</h3>
+                    <p class="text-sm mt-1 text-slate-500 mind-map-branch-text">Regulación directa (LEIAPA y CIV).</p>
+                </button>
+                
+                <!-- Branch 2: Base Constitucional -->
+                <button data-target="constitucional" class="mind-map-branch bg-white text-slate-700 hover:text-white hover:bg-cyan-500">
+                    <span class="text-2xl block mb-2">2. 🏛️</span>
+                    <h3 class="font-bold text-lg md:text-xl">Base Constitucional</h3>
+                    <p class="text-sm mt-1 text-slate-500 mind-map-branch-text">Jerarquía de leyes (Kelsen) y DDHH.</p>
+                </button>
+                
+                <!-- Branch 3: Deber de Colegiatura -->
+                <button data-target="colegiatura" class="mind-map-branch bg-white text-slate-700 hover:text-white hover:bg-cyan-500">
+                    <span class="text-2xl block mb-2">3. 📜</span>
+                    <h3 class="font-bold text-lg md:text-xl">Deber de Colegiatura</h3>
+                    <p class="text-sm mt-1 text-slate-500 mind-map-branch-text">Mandato del Art. 105 CRBV.</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="mt-12">
+            <!-- Section 1: Ejercicio Profesional -->
+            <section id="profesional" class="content-section active">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-100">
+                    <h2 class="text-2xl font-bold text-cyan-700 mb-4">El Ingeniero y su Práctica Profesional</h2>
+                    <p class="mb-6 text-slate-600">
+                        Esta sección detalla el marco normativo que rige directamente la práctica diaria de la ingeniería en Venezuela. Se centra en la ley principal, el rol del Colegio de Ingenieros y las responsabilidades éticas y legales que todo profesional debe conocer y cumplir para un ejercicio íntegro y seguro.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-stone-50 p-5 rounded-lg border">
+                            <h3 class="font-bold text-lg mb-2">🏛️ Ley Principal de Regulación</h3>
+                            <p class="mb-2"><strong class="font-semibold text-slate-700">Ley del Ejercicio de la Ingeniería, Arquitectura y Profesiones Afines (LEIAPA):</strong> Es el instrumento legal que establece los derechos, deberes y pautas para el desempeño de la profesión.</p>
+                        </div>
+                        <div class="bg-stone-50 p-5 rounded-lg border">
+                            <h3 class="font-bold text-lg mb-2">🛡️ Colegio de Ingenieros de Venezuela (CIV)</h3>
+                            <p class="mb-2"><strong class="font-semibold text-slate-700">Rol Gremial:</strong> Actúa como el máximo organismo de la profesión, velando por el decoro, la ética y el progreso técnico. Su inscripción es <strong class="text-red-600">obligatoria</strong> para el ejercicio legal.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-xl mt-8 mb-4 text-slate-700">Deberes y Responsabilidades Clave</h3>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-lg">
+                            <h4 class="font-bold">📄 Cumplimiento de Normas</h4>
+                            <p class="text-sm text-slate-600 mt-1">Asegurar que todo proyecto cumpla con reglamentos, códigos y normas técnicas (COVENIN, etc.).</p>
+                        </div>
+                        <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-lg">
+                            <h4 class="font-bold">⚖️ Ética Profesional</h4>
+                            <p class="text-sm text-slate-600 mt-1">Regirse por el Código de Ética, actuando con integridad, responsabilidad social y lealtad.</p>
+                        </div>
+                        <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-lg">
+                            <h4 class="font-bold">🚧 Responsabilidad Civil/Penal</h4>
+                            <p class="text-sm text-slate-600 mt-1">Asumir la responsabilidad por fallas, vicios u omisiones en proyectos y obras ejecutadas.</p>
+                        </div>
+                        <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-lg">
+                            <h4 class="font-bold">✍️ Uso de la Firma</h4>
+                            <p class="text-sm text-slate-600 mt-1">Actuar y firmar documentos exclusivamente dentro del área de competencia de su especialidad.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Base Constitucional -->
+            <section id="constitucional" class="content-section">
+                 <div class="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-100">
+                    <h2 class="text-2xl font-bold text-cyan-700 mb-4">Fundamento Constitucional</h2>
+                    <p class="mb-6 text-slate-600">
+                       Aquí se explora la base legal suprema que sustenta toda la normativa profesional: la Constitución. A través de la Pirámide de Kelsen interactiva, entenderás la jerarquía de las leyes y cómo la Constitución establece los principios fundamentales que enmarcan el derecho al trabajo y la responsabilidad social del ingeniero.
+                    </p>
+                    
+                    <h3 class="font-bold text-xl text-center mb-4 text-slate-700">Jerarquía de la Norma Jurídica (Pirámide de Kelsen)</h3>
+                    <p class="text-center text-sm text-slate-500 mb-6">Pasa el cursor sobre cada nivel de la pirámide para ver su descripción.</p>
+
+                    <div class="grid lg:grid-cols-2 gap-8 items-center kelsen-pyramid-container">
+                        <!-- Kelsen Pyramid Visual -->
+                        <div class="relative w-full max-w-sm mx-auto flex flex-col-reverse">
+                            <div data-target="kelsen-5" class="kelsen-pyramid-level bg-cyan-100 h-12 text-center pt-2.5 font-medium text-cyan-900 text-xs sm:text-sm">Actos Administrativos</div>
+                            <div data-target="kelsen-4" class="kelsen-pyramid-level bg-cyan-200 h-12 text-center pt-2.5 font-medium text-cyan-900 text-xs sm:text-sm">Reglamentos</div>
+                            <div data-target="kelsen-3" class="kelsen-pyramid-level bg-cyan-300 h-12 text-center pt-2.5 font-bold text-cyan-900 text-sm sm:text-base">Leyes Ordinarias (LEIAPA)</div>
+                            <div data-target="kelsen-2" class="kelsen-pyramid-level bg-cyan-400 h-12 text-center pt-2.5 font-bold text-white text-sm sm:text-base">Tratados DDHH / Leyes Orgánicas</div>
+                            <div data-target="kelsen-1" class="kelsen-pyramid-level bg-cyan-600 h-14 text-center pt-4 font-bold text-white text-base sm:text-lg">Constitución (CRBV)</div>
+                        </div>
+
+                        <!-- Kelsen Descriptions -->
+                        <div class="space-y-3">
+                            <div id="kelsen-1" class="kelsen-desc-item p-4 border-l-4 border-cyan-600 bg-stone-50 rounded-r-lg">
+                                <h4 class="font-bold">1. Constitución de la RBV</h4>
+                                <p class="text-sm text-slate-600">Norma suprema. Ninguna ley puede contradecirla. Establece los principios fundamentales del Estado y los derechos ciudadanos.</p>
+                            </div>
+                            <div id="kelsen-2" class="kelsen-desc-item p-4 border-l-4 border-cyan-400 bg-stone-50 rounded-r-lg">
+                                <h4 class="font-bold">2. Tratados y Leyes Orgánicas</h4>
+                                <p class="text-sm text-slate-600">Normas que desarrollan derechos constitucionales o estructuran poderes públicos. Prevalecen sobre leyes ordinarias.</p>
+                            </div>
+                            <div id="kelsen-3" class="kelsen-desc-item p-4 border-l-4 border-cyan-300 bg-stone-50 rounded-r-lg">
+                                <h4 class="font-bold">3. Leyes Ordinarias</h4>
+                                <p class="text-sm text-slate-600">Regulan materias específicas. <strong class="text-cyan-800">Aquí se ubica la LEIAPA</strong>, que rige el ejercicio de la ingeniería.</p>
+                            </div>
+                             <div id="kelsen-4" class="kelsen-desc-item p-4 border-l-4 border-cyan-200 bg-stone-50 rounded-r-lg">
+                                <h4 class="font-bold">4. Reglamentos</h4>
+                                <p class="text-sm text-slate-600">Normas dictadas por el poder ejecutivo para detallar y aplicar lo establecido en las leyes. No pueden contradecirlas.</p>
+                            </div>
+                            <div id="kelsen-5" class="kelsen-desc-item p-4 border-l-4 border-cyan-100 bg-stone-50 rounded-r-lg">
+                                <h4 class="font-bold">5. Actos Administrativos</h4>
+                                <p class="text-sm text-slate-600">Decisiones concretas que aplican las normas a casos particulares (ej: una licencia, una sanción).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Deber de Colegiatura -->
+            <section id="colegiatura" class="content-section">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-100">
+                    <h2 class="text-2xl font-bold text-cyan-700 mb-4">El Deber de Colegiatura: Artículo 105 CRBV</h2>
+                    <p class="mb-6 text-slate-600">
+                       Esta sección se enfoca en el punto más crítico para la habilitación profesional: la colegiatura. Analizamos el Artículo 105 de la Constitución, que es el que exige explícitamente que la ley regule la colegiación, y mostramos cómo este mandato se materializa en un requisito indispensable para todo ingeniero en Venezuela.
+                    </p>
+
+                    <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-lg">
+                        <h3 class="font-bold text-lg text-amber-900">📜 Mandato Constitucional: Artículo 105</h3>
+                        <blockquote class="mt-2 text-slate-700 italic">
+                            "La ley determinará las profesiones que requieren título y las condiciones que deben cumplirse para ejercerlas, <strong class="font-semibold">incluyendo la colegiación.</strong>"
+                        </blockquote>
+                    </div>
+                    
+                    <h3 class="font-bold text-xl mt-8 mb-4 text-slate-700">De la Constitución a la Práctica</h3>
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-center mt-6">
+                        <!-- Step 1 -->
+                        <div class="flex-1">
+                             <div class="bg-cyan-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto">1</div>
+                             <h4 class="font-bold mt-3">Principio Constitucional</h4>
+                             <p class="text-sm text-slate-500">El Art. 105 establece la <strong class="text-slate-600">obligación</strong> de la colegiatura.</p>
+                        </div>
+                        
+                        <div class="text-3xl text-slate-300 transform rotate-90 md:rotate-0">→</div>
+
+                        <!-- Step 2 -->
+                        <div class="flex-1">
+                             <div class="bg-cyan-500 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto">2</div>
+                             <h4 class="font-bold mt-3">Desarrollo Legal</h4>
+                             <p class="text-sm text-slate-500">La <strong class="text-slate-600">LEIAPA</strong> desarrolla este mandato y designa al CIV como ente rector.</p>
+                        </div>
+
+                        <div class="text-3xl text-slate-300 transform rotate-90 md:rotate-0">→</div>
+
+                        <!-- Step 3 -->
+                        <div class="flex-1">
+                             <div class="bg-cyan-400 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto">3</div>
+                             <h4 class="font-bold mt-3">Efecto Práctico</h4>
+                             <p class="text-sm text-slate-500">El ejercicio profesional sin colegiatura es <strong class="text-red-600">ilegal y sancionable</strong>, careciendo de validez cualquier acto profesional.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Updated to use mind-map-branch class
+            const navButtons = document.querySelectorAll('.mind-map-branch');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            // Navigation logic (now triggered by mind map branches)
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.target;
+
+                    // Remove active from all branches
+                    navButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        // Reset text color for non-active branches on mobile/hover
+                        const textElement = btn.querySelector('.mind-map-branch-text');
+                        if (textElement) {
+                            textElement.classList.add('text-slate-500');
+                        }
+                    });
+                    
+                    // Add active to clicked branch
+                    button.classList.add('active');
+                    // Ensure text color is white for active branch
+                    const activeTextElement = button.querySelector('.mind-map-branch-text');
+                    if (activeTextElement) {
+                        activeTextElement.classList.remove('text-slate-500');
+                        activeTextElement.classList.add('text-white');
+                    }
+
+                    // Show/hide content sections
+                    contentSections.forEach(section => {
+                        if (section.id === targetId) {
+                            section.classList.add('active');
+                        } else {
+                            section.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // Set initial state for the active branch text color
+            const initialActiveBranch = document.querySelector('.mind-map-branch.active');
+            if (initialActiveBranch) {
+                const initialTextElement = initialActiveBranch.querySelector('.mind-map-branch-text');
+                if (initialTextElement) {
+                    initialTextElement.classList.remove('text-slate-500');
+                    initialTextElement.classList.add('text-white');
+                }
+            }
+            
+            // Kelsen pyramid interactive logic (No changes needed here)
+            const kelsenLevels = document.querySelectorAll('.kelsen-pyramid-level');
+            const kelsenDescriptions = document.querySelectorAll('.kelsen-desc-item');
+            const pyramidContainer = document.querySelector('.kelsen-pyramid-container');
+
+            kelsenLevels.forEach(level => {
+                level.addEventListener('mouseover', () => {
+                    const targetId = level.dataset.target;
+                    const targetDesc = document.getElementById(targetId);
+                    
+                    pyramidContainer.querySelectorAll('.kelsen-desc-item').forEach(desc => {
+                        desc.style.opacity = '0.5';
+                    });
+                    
+                    if(targetDesc) {
+                       targetDesc.style.opacity = '1';
+                    }
+                });
+            });
+            
+            pyramidContainer.addEventListener('mouseleave', () => {
+                 pyramidContainer.querySelectorAll('.kelsen-desc-item').forEach(desc => {
+                    desc.style.opacity = '1';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
